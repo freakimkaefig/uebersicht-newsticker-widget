@@ -1,6 +1,8 @@
 # uebersicht-newsticker-widget
 A news ticker for Übersicht using newsapi.org
 
+![screenshot](screenshot.png "Screenshot")
+
 This widget adds a news ticker to your desktop. The API is provided by newsapi.org, therefore you have to generate an API key from their website which is actually free for developers and individuals.
 
 
