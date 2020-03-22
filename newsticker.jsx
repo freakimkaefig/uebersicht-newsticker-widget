@@ -47,7 +47,6 @@ export const command = dispatch => {
 }
 
 export const updateState = (event, previousState) => {
-    console.log(event.type);
     switch(event.type) {
         case 'CHANGE_CATEGORY':
             return {
@@ -62,7 +61,6 @@ export const updateState = (event, previousState) => {
                 })
             }
         case 'FETCH_SUCCEEDED':
-            console.log(event.data);
             return { 
                 output: event.data.articles,
                 categories: previousState.categories
@@ -77,7 +75,6 @@ export const updateState = (event, previousState) => {
 }
 
 export const render = ({ output, categories }, dispatch) => {
-    console.log(output, categories);
     return (
         <div>
             <style dangerouslySetInnerHTML={{__html: `
