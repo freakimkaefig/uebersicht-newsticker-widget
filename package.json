@@ -1,6 +1,6 @@
 {
   "name": "newsticker.widget",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A newsticker widget for Übersicht",
   "main": "newsticker.jsx",
   "repository": {
