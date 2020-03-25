@@ -1,4 +1,3 @@
-import 'url';
 import { css } from 'uebersicht';
 
 const BASE_URL = 'http://newsapi.org/v2/top-headlines';
@@ -9,7 +8,7 @@ const PAGE_SIZE = 50;
 export const refreshFrequency = 60000;
 
 export const initialState = {
-    output: [],
+    data: [],
     categories: [
         { title: 'All', key: 'all', active: true },
         { title: 'Business', key: 'business', active: false },
@@ -32,52 +31,60 @@ export const command = dispatch => {
         .then(response => {
             return response.json();
         })
-        .catch(error => {
-            return dispatch({
-                type: 'FETCH_FAILED',
-                error: error
-            });
-        })
         .then(data => {
             return dispatch({
                 type: 'FETCH_SUCCEEDED',
                 data: data
             });
+        })
+        .catch(error => {
+            return dispatch({
+                type: 'FETCH_FAILED',
+                error: error
+            });
         });
 }
 
 export const updateState = (event, previousState) => {
-    switch(event.type) {
+    if (event.error) {
+        return {
+            ...previousState,
+            error: `We got an error: ${event.error}`
+        }
+    }
+
+    switch (event.type) {
         case 'CHANGE_CATEGORY':
+            const { category } = event;
             return {
                 ...previousState,
-                categories: previousState.categories.map(category => {
-                    if (category.key == event.category) {
-                        category.active = true;
+                categories: previousState.categories.map(item => {
+                    if (item.key == category) {
+                        item.active = true;
                     } else {
-                        category.active = false;
+                        item.active = false;
                     }
-                    return category;
+                    return item;
                 })
             }
         case 'FETCH_SUCCEEDED':
-            return { 
-                output: event.data.articles,
+            const { data } = event;
+            return {
+                data: data.articles,
                 categories: previousState.categories
             };
-        case 'FETCH_FAILED':
-            return { 
-                output: [event.error],
-                categories: previousState.categories
-            };
-        default: return previousState;
+        default:
+            return previousState;
     }
 }
 
-export const render = ({ output, categories }, dispatch) => {
-    return (
-        <div>
-            <style dangerouslySetInnerHTML={{__html: `
+export const render = ({ data, categories, error }, dispatch) => {
+    return error ? (
+        <div>{error}</div>
+    ) : (
+            <div>
+                <style dangerouslySetInnerHTML={{
+                    __html: `
                 @keyframes marquee {
                     0% { transform: translate(0, 0); }
                     100% { transform: translate(-100%, 0); }
@@ -100,52 +107,48 @@ export const render = ({ output, categories }, dispatch) => {
                             .then(response => {
                                 return response.json();
                             })
-                            .catch(error => {
-                                return dispatch({
-                                    type: 'FETCH_FAILED',
-                                    error: error
-                                });
-                            })
                             .then(data => {
                                 return dispatch({
                                     type: 'FETCH_SUCCEEDED',
                                     data: data
                                 });
+                            })
+                            .catch(error => {
+                                return dispatch({
+                                    type: 'FETCH_FAILED',
+                                    error: error
+                                });
                             });
                     }}>
-                {categories.map(category => {
-                    return (
-                    <div key={category.key}
-                        id={category.key}
-                        className={category.active ? active : ``}>
-                        {category.title}
-                    </div>
-                    )
-                })}
+                    {categories.map(category => {
+                        return (
+                            <div key={category.key}
+                                id={category.key}
+                                className={category.active ? active : ``}>
+                                {category.title}
+                            </div>
+                        )
+                    })}
+                </div>
+                <p className={marquee}>
+                    <span className={`${span} ${css({
+                        animationDuration: `${data.map(article => {
+                            return article.title;
+                        }).join('   +   ').length / 10}s`
+
+                    })}`}>
+                        {data.map((article, index) => {
+                            return (
+                                <a key={index} className={link} href={article.url}>
+                                    {article.title}
+                                    <span>&nbsp;&nbsp;&nbsp;<strong>+</strong>&nbsp;&nbsp;&nbsp;</span>
+                                </a>
+                            )
+                        })}
+                    </span>
+                </p>
             </div>
-            <p className={marquee}>
-                <span className={`${span} ${css({
-                    animationDuration: `${output.map(article => {
-                        return article.title;
-                    }).join('   +   ').length / 10}s`
-                
-                })}`}>
-                {output.map((article, index) => {
-
-                    const spacer = index === output.length ? (
-                        <span></span>
-                    ) : ( 
-                        <span>&nbsp;&nbsp;&nbsp;<strong>+</strong>&nbsp;&nbsp;&nbsp;</span>
-                    );
-
-                    return (
-                        <a key={index} className={link} href={article.url}>{article.title} {spacer}</a>
-                    )
-                })}
-                </span>
-            </p>
-        </div>
-    );
+        );
 }
 
 export const className = `
