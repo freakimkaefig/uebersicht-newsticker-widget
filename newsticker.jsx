@@ -93,16 +93,20 @@ export const render = ({ data, activeCategory, error }, dispatch) => {
             }s`,
           })}`}
         >
-          {data.map((article, index) => {
-            return (
-              <a key={index} className={link} href={article.url}>
-                {article.title}
-                <span>
-                  &nbsp;&nbsp;&nbsp;<strong>+</strong>&nbsp;&nbsp;&nbsp;
-                </span>
-              </a>
-            );
-          })}
+          {data ? (
+            data.map((article, index) => {
+              return (
+                <a key={index} className={link} href={article.url}>
+                  {article.title}
+                  <span>
+                    &nbsp;&nbsp;&nbsp;<strong>+</strong>&nbsp;&nbsp;&nbsp;
+                  </span>
+                </a>
+              );
+            })
+          ) : (
+            <div>Something went wrong! There aren't any news.</div>
+          )}
         </span>
       </p>
     </div>
